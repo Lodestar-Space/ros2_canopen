@@ -143,6 +143,7 @@ bool Motor402::switchMode(uint16_t mode)
       {
         lock.unlock();                                                    // unlock inside loop
         driver->universal_get_value<int8_t>(op_mode_display_index, 0x0);  // poll
+        RCLCPP_INFO(rclcpp::get_logger("canopen_402_driver"), "Mode is: %d", mode_id_);
         std::this_thread::sleep_for(std::chrono::milliseconds(20));       // wait some time
         lock.lock();
       }
