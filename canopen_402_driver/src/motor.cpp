@@ -224,7 +224,7 @@ bool Motor402::readState()
   std::unique_lock lock(mode_mutex_);
   uint16_t new_mode;
   new_mode = driver->universal_get_value<int8_t>(op_mode_display_index, 0x0);
-  // RCLCPP_INFO(rclcpp::get_logger("canopen_402_driver"), "Mode %hhi",new_mode);
+  RCLCPP_INFO(rclcpp::get_logger("canopen_402_driver"), "Mode %hhi",new_mode);
 
   if (selected_mode_ && selected_mode_->mode_id_ == new_mode)
   {
