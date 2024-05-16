@@ -131,6 +131,7 @@ bool Motor402::switchMode(uint16_t mode)
 
     std::chrono::steady_clock::time_point abstime =
       std::chrono::steady_clock::now() + std::chrono::seconds(5);
+    
     if (monitor_mode_)
     {
       while (mode_id_ != mode && mode_cond_.wait_until(lock, abstime) == std::cv_status::no_timeout)
@@ -149,6 +150,9 @@ bool Motor402::switchMode(uint16_t mode)
       }
     }
 
+    driver->universal_get_value<int8_t>(op_mode_display_index, 0x0);  // poll
+    RCLCPP_INFO(rclcpp::get_logger("canopen_402_driver"), "Mode is: %d", mode_id_);
+    
     if (mode_id_ == mode)
     {
       selected_mode_ = next_mode;
