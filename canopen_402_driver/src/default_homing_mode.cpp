@@ -27,6 +27,7 @@ struct masked_status_not_equal
 bool DefaultHomingMode::start()
 {
   execute_ = false;
+  disable_halt_ = false;
   return read(0);
 }
 bool DefaultHomingMode::read(const uint16_t & sw)
@@ -43,25 +44,32 @@ bool DefaultHomingMode::read(const uint16_t & sw)
 bool DefaultHomingMode::write(Mode::OpModeAccesser & cw)
 {
   cw = 0;
+  
   if (execute_)
   {
     cw.set(CW_StartHoming);
     return true;
   }
+
+  if (disable_halt_)
+  {
+    return true;
+  }
+
   return false;
 }
 
 bool DefaultHomingMode::executeHoming()
 {
   int hmode = driver->universal_get_value<int8_t>(index, 0x0);
-  std::cout<<"hmode: "<<hmode<<std::endl;
-
-  driver->universal_set_value<int8_t>(index, 0x0, hmode);
+ 
 
   if (hmode == 0 || hmode == 37) //! hacky fix for epos4 to ignore homing on init!!
   {
     return true;
   }
+  //for epos4 need to disable halt bit before executing homing
+  disable_halt_ = true;
   /// @ get abs time from canopen_master
   std::chrono::steady_clock::time_point prepare_time =
     std::chrono::steady_clock::now() + std::chrono::seconds(1);
@@ -70,14 +78,17 @@ bool DefaultHomingMode::executeHoming()
   if (!cond_.wait_until(
         lock, prepare_time, masked_status_not_equal<MASK_Error | MASK_Reached, 0>(status_)))
   {
+    disable_halt_ = false;
     return error("could not prepare homing");
   }
   if (status_ & MASK_Error)
   {
+    disable_halt_ = false;
     return error("homing error before start");
   }
 
   execute_ = true;
+  disable_halt_ = false;
 
   // ensure start
   if (!cond_.wait_until(

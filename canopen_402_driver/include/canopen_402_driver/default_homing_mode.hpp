@@ -30,6 +30,7 @@ class DefaultHomingMode : public HomingMode
   std::shared_ptr<LelyDriverBridge> driver;
 
   std::atomic<bool> execute_;
+  std::atomic<bool> disable_halt_;
 
   std::mutex mutex_;
   std::condition_variable cond_;
