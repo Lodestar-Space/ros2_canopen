@@ -54,6 +54,7 @@ bool DefaultHomingMode::write(Mode::OpModeAccesser & cw)
 bool DefaultHomingMode::executeHoming()
 {
   int hmode = driver->universal_get_value<int8_t>(index, 0x0);
+  std::cout<<"hmode: "<<hmode<<std::endl;
   if (hmode == 0 || hmode == 37) //! hacky fix for epos4 to ignore homing on init!!
   {
     return true;
@@ -88,7 +89,7 @@ bool DefaultHomingMode::executeHoming()
   }
 
   std::chrono::steady_clock::time_point finish_time =
-    std::chrono::steady_clock::now() + std::chrono::seconds(10);  //
+    std::chrono::steady_clock::now() + std::chrono::seconds(30);  //
 
   // wait for attained
   if (!cond_.wait_until(
