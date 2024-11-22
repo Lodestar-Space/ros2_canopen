@@ -61,7 +61,7 @@ bool DefaultHomingMode::executeHoming()
   }
   /// @ get abs time from canopen_master
   std::chrono::steady_clock::time_point prepare_time =
-    std::chrono::steady_clock::now() + std::chrono::seconds(30);
+    std::chrono::steady_clock::now() + std::chrono::seconds(1);
   // ensure homing is not running
   std::unique_lock lock(mutex_);
   if (!cond_.wait_until(
